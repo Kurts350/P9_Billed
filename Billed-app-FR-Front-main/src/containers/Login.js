@@ -41,8 +41,31 @@ export default class Login {
     e.preventDefault()
     const user = {
       type: "Admin",
-      email: e.target.querySelector(`input[data-testid="employee-email-input"]`).value,
-      password: e.target.querySelector(`input[data-testid="employee-password-input"]`).value,
+/**
+ * Bug corrigé : Erreur lors de la connexion en tant qu'administrateur
+ * 
+ * Description du bug :
+ * Lorsqu'un utilisateur tentait de se connecter en tant qu'administrateur, une erreur
+ * "Cannot read properties of null (reading 'value')" apparaissait dans la console
+ * et la connexion échouait.
+ * 
+ * Cause du bug :
+ * Dans la méthode handleSubmitAdmin du fichier Login.js, le code utilisait des sélecteurs
+ * incorrects pour récupérer les valeurs des champs email et password. Il cherchait des 
+ * éléments avec les data-testid "employee-email-input" et "employee-password-input" alors 
+ * que le formulaire d'administration utilisait "admin-email-input" et "admin-password-input".
+ * 
+ * Solution :
+ * Modifier les sélecteurs dans la méthode handleSubmitAdmin pour qu'ils correspondent
+ * aux attributs data-testid présents dans le formulaire d'administration :
+ * - Remplacer "employee-email-input" par "admin-email-input"
+ * - Remplacer "employee-password-input" par "admin-password-input"
+ * 
+ * Cette correction permet au code de trouver correctement les champs du formulaire
+ * d'administration et d'en extraire les valeurs pour effectuer la connexion.
+ */
+      email: e.target.querySelector(`input[data-testid="admin-email-input"]`).value,
+      password: e.target.querySelector(`input[data-testid="admin-password-input"]`).value,
       status: "connected"
     }
     this.localStorage.setItem("user", JSON.stringify(user))
