@@ -24,6 +24,31 @@ const rows = (data) => {
 }
 
 export default ({ data: bills, loading, error }) => {
+  /**
+ * Bug corrigé : Tri des notes de frais par ordre décroissant de date
+ * 
+ * Description du bug :
+ * Les notes de frais n'étaient pas triées par ordre décroissant de date (du plus récent au moins récent) 
+ * dans l'interface utilisateur, ce qui faisait échouer le test "bills should be ordered from earliest to latest".
+ * 
+ * Cause du bug :
+ * Dans le fichier BillsUI.js, les notes de frais étaient affichées dans l'ordre où elles étaient reçues,
+ * sans tri préalable. Le test attend que les factures soient triées par date décroissante.
+ * 
+ * Solution :
+ * Ajout d'une étape de tri des factures avant leur affichage dans la fonction BillsUI.
+ * Les factures sont maintenant triées en utilisant une comparaison de chaînes pour respecter
+ * la logique de tri utilisée dans le test (fonction antiChrono).
+ * 
+ * billsSorted = [...bills].sort((a, b) => a.date < b.date ? 1 : -1)
+ * 
+ * Cette modification assure que les notes de frais sont toujours affichées 
+ * de la plus récente à la plus ancienne, comme attendu par les utilisateurs.
+ */
+  const billsSorted = bills && bills.length ? [...bills].sort((a, b) => {
+    return a.date < b.date ? 1 : -1;
+  }) : [];
+  
   
   const modal = () => (`
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -69,7 +94,7 @@ export default ({ data: bills, loading, error }) => {
               </tr>
           </thead>
           <tbody data-testid="tbody">
-            ${rows(bills)}
+            ${rows(billsSorted)}
           </tbody>
           </table>
         </div>
