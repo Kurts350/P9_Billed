@@ -144,6 +144,32 @@ export default class {
         .html("")
       this.counter ++
     }
+/**
+ * Bug corrigé : Impossibilité de sélectionner les tickets d'une liste précédemment dépliée
+ * 
+ * Description du bug :
+ * Lorsqu'un utilisateur dépliait une liste de tickets (par exemple : statut "validé"),
+ * puis dépliait une seconde liste (par exemple : statut "refusé"), les tickets de la
+ * première liste n'étaient plus cliquables.
+ * 
+ * Cause du bug :
+ * Dans la méthode handleShowTickets, les gestionnaires d'événements click étaient ajoutés
+ * uniquement aux tickets de la liste qui venait d'être dépliée. La méthode jQuery .click() 
+ * remplace les gestionnaires d'événements existants au lieu de les ajouter, ce qui faisait 
+ * que seuls les tickets de la dernière liste dépliée restaient interactifs.
+ * 
+ * Solution :
+ * 1. Supprimer d'abord tous les gestionnaires d'événements click existants pour éviter les doublons
+ * 2. Réattacher ensuite les gestionnaires d'événements à tous les tickets visibles
+ * 
+ * Cette approche garantit que tous les tickets de toutes les listes dépliées restent
+ * cliquables, même après avoir déplié une nouvelle liste.
+ */
+
+    // Supprimer tous les gestionnaires d'événements existants pour éviter les doublons
+    bills.forEach(bill => {
+      $(`#open-bill${bill.id}`).off('click')
+    })
 
     bills.forEach(bill => {
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
