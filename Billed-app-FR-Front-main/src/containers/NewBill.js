@@ -15,16 +15,49 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
+
+  /**
+ * Bug corrigé : Justificatifs non visibles dans la modale
+ * 
+ * Description du bug :
+ * Lorsqu'un employé ou un administrateur cliquait sur l'icône "voir" pour consulter 
+ * un justificatif, la modale s'ouvrait mais l'image n'apparaissait pas.
+ * 
+ * Cause du bug :
+ * Deux problèmes principaux ont été identifiés :
+ * 1. L'URL du fichier (fileUrl) était undefined car la réponse du backend 
+ *    ne contenait pas cette propriété mais plutôt "filePath"
+ * 2. Aucune validation n'était effectuée sur le type de fichier téléchargé
+ * 
+ * Solution :
+ * 1. Construction de l'URL complète à partir du filePath retourné par le backend
+ * 2. Ajout d'une validation des extensions de fichiers pour n'accepter que les formats 
+ *    jpg, jpeg et png
+ * 3. Ajout de logs pour faciliter le débogage
+ */
   handleChangeFile = e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
+  
+    // Vérification de l'extension du fichier
+    const fileExtension = fileName.split('.').pop().toLowerCase()
+    const allowedExtensions = ['jpg', 'jpeg', 'png']
+    
+    if (!allowedExtensions.includes(fileExtension)) {
+      // Afficher un message d'erreur
+      alert("Seuls les fichiers jpg, jpeg et png sont acceptés")
+      // Réinitialiser le champ de fichier
+      this.document.querySelector(`input[data-testid="file"]`).value = ""
+      return
+    }
+  
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
     formData.append('email', email)
-
+  
     this.store
       .bills()
       .create({
@@ -33,12 +66,17 @@ export default class NewBill {
           noContentType: true
         }
       })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
+      .then((response) => {
+        console.log("Réponse complète du backend:", response)
+        
+        // Construire l'URL complète du fichier
+        const baseUrl = "http://localhost:3000/"
+        this.billId = response.key
+        this.fileUrl = baseUrl + response.filePath
         this.fileName = fileName
-      }).catch(error => console.error(error))
+        
+        console.log("URL du fichier construite:", this.fileUrl)
+      }).catch(error => console.error("Erreur lors de l'upload:", error))
   }
   handleSubmit = e => {
     e.preventDefault()

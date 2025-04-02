@@ -20,10 +20,25 @@ export default class {
     this.onNavigate(ROUTES_PATH['NewBill'])
   }
 
+  /**
+ * Bug corrigé : Justificatifs non visibles dans la modale
+ * 
+ * Description du bug :
+ * Lors du clic sur l'icône "voir", la modale s'ouvrait mais l'image 
+ * ne s'affichait pas.
+ * 
+ * Cause du bug :
+ * L'URL du fichier n'était pas entourée de guillemets dans la balise img, 
+ * ce qui pouvait causer des problèmes si l'URL contenait des caractères spéciaux.
+ * 
+ * Solution :
+ * Ajout de guillemets autour de l'URL dans l'attribut src de la balise img 
+ * pour s'assurer que l'URL complète est correctement utilisée.
+ */
   handleClickIconEye = (icon) => {
     const billUrl = icon.getAttribute("data-bill-url")
     const imgWidth = Math.floor($('#modaleFile').width() * 0.5)
-    $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`)
+    $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src="${billUrl}" alt="Bill" /></div>`)
     $('#modaleFile').modal('show')
   }
 
