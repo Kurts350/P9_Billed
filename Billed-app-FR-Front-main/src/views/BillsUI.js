@@ -40,15 +40,44 @@ export default ({ data: bills, loading, error }) => {
  * Les factures sont maintenant triées en utilisant une comparaison de chaînes pour respecter
  * la logique de tri utilisée dans le test (fonction antiChrono).
  * 
- * billsSorted = [...bills].sort((a, b) => a.date < b.date ? 1 : -1)
- * 
  * Cette modification assure que les notes de frais sont toujours affichées 
  * de la plus récente à la plus ancienne, comme attendu par les utilisateurs.
  */
+  // Fonction pour convertir les dates au format français en objets Date
+  const parseDate = (dateStr) => {
+    if (!dateStr) return new Date(0); // Valeur par défaut
+    
+    // Gérer le format "22 Nov. 21"
+    const parts = dateStr.split(' ');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0]);
+      
+      // Convertir l'abréviation du mois en numéro de mois (0-11)
+      const monthAbbr = parts[1].toLowerCase().slice(0, 3);
+      const monthMap = {
+        'jan': 0, 'fév': 1, 'mar': 2, 'avr': 3, 'mai': 4, 'jun': 5, 
+        'jui': 6, 'aoû': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'déc': 11
+      };
+      
+      const month = monthMap[monthAbbr] || 0;
+      
+      // Gérer l'année à 2 ou 4 chiffres
+      let year = parseInt(parts[2].replace('.', ''));
+      if (year < 100) year += 2000; // Assumer 20xx pour les années à 2 chiffres
+      
+      return new Date(year, month, day);
+    }
+    
+    // Fallback: essayer de parser directement
+    return new Date(dateStr);
+  };
+
+  // Tri des factures en utilisant la fonction de parsing
   const billsSorted = bills && bills.length ? [...bills].sort((a, b) => {
-    return a.date < b.date ? 1 : -1;
+    const dateA = parseDate(a.date);
+    const dateB = parseDate(b.date);
+    return dateB - dateA; // Ordre décroissant
   }) : [];
-  
   
   const modal = () => (`
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">

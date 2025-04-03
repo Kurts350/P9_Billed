@@ -166,10 +166,10 @@ export default class {
  * cliquables, même après avoir déplié une nouvelle liste.
  */
 
-    // Supprimer tous les gestionnaires d'événements existants pour éviter les doublons
-    bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).off('click')
-    })
+  // Supprimer tous les gestionnaires d'événements existants pour éviter les doublons
+  bills.forEach(bill => {
+    $(`#open-bill${bill.id}`).off('click')
+  })
 
     bills.forEach(bill => {
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
