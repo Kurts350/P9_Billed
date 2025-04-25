@@ -38,6 +38,7 @@ describe("Given I am connected as an employee", () => {
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
       
+      // Ajout de l'expression pour vérifier la classe active
       expect(windowIcon.classList.contains("active-icon")).toBe(true)
     })
     
